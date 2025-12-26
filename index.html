@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Competition Kit V3</title>
+  <title>Competition Kit V4</title>
   <meta name="theme-color" content="#0b1020" />
   <style>
     :root{
@@ -102,6 +102,7 @@
       border-radius:14px;display:none;box-shadow:0 16px 50px rgba(0,0,0,.45);z-index:999;max-width:92vw;text-align:center;font-weight:900;
     }
     .badgeDot{width:8px;height:8px;border-radius:99px;background: var(--accent2); display:inline-block}
+    .bigBtn{padding:14px 14px;border-radius:18px;font-size:14px}
   </style>
 </head>
 
@@ -112,8 +113,8 @@
       <div class="brand">
         <div class="logo"></div>
         <div>
-          Competition Kit <span class="muted">V3</span>
-          <small>OzBargain scanner + smarter autofill + anti-repeat labels</small>
+          Competition Kit <span class="muted">V4</span>
+          <small>Split-screen helper + copy-to-clipboard entry assist</small>
         </div>
       </div>
       <div class="stats">
@@ -125,6 +126,7 @@
 
     <div class="tabs">
       <button class="tab active" data-tab="dashboard">🏁 Dashboard</button>
+      <button class="tab" data-tab="entry">⚡ Entry Assist</button>
       <button class="tab" data-tab="ozbargain">🧲 OzBargain <span id="obDot" style="display:none" class="badgeDot"></span></button>
       <button class="tab" data-tab="add">➕ Add</button>
       <button class="tab" data-tab="answers">✍️ Answers</button>
@@ -139,7 +141,7 @@
 
 <script>
 (() => {
-  const LS_KEY = "competition_kit_v3";
+  const LS_KEY = "competition_kit_v4";
   const todayISO = () => new Date().toISOString().slice(0,10);
 
   const defaultState = {
@@ -157,9 +159,13 @@
       cache: [],
       lastCheckedAt: "",
       prefs: {
-        hideEntered: true,   // default ON
+        hideEntered: true,
         hideInList: false
       }
+    },
+    entry: {
+      currentCompId: "",
+      stepIndex: 0
     }
   };
 
@@ -210,6 +216,39 @@
     document.getElementById("obDot").style.display = newOB > 0 ? "inline-block" : "none";
   }
 
+  async function copyText(label, text){
+    try{
+      await navigator.clipboard.writeText(text);
+      toast(`Copied: ${label}`);
+      return true;
+    } catch(e){
+      // Fallback for browsers that block clipboard
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try{
+        document.execCommand("copy");
+        toast(`Copied: ${label}`);
+        return true;
+      } catch {
+        toast("Copy blocked by browser.");
+        return false;
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+  }
+
+  function setTab(next){
+    tab = next;
+    document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+    render();
+  }
+  document.querySelectorAll(".tab").forEach(btn => btn.onclick = () => setTab(btn.dataset.tab));
+
   // ---------------- Dashboard ----------------
   function renderDashboard(){
     const open = state.comps.filter(c => ["new","ready"].includes(c.status) && isOpen(c));
@@ -219,7 +258,7 @@
       <div class="grid">
         <div class="card">
           <div class="title">Daily Flow</div>
-          <div class="small muted">Scan OzBargain → open comp → run Autofill → paste answer → you hit submit.</div>
+          <div class="small muted">Open comp in a new tab → use Split Screen with Entry Assist → tap-copy → paste into fields.</div>
           <div class="hr"></div>
 
           <div class="row three">
@@ -230,19 +269,19 @@
 
           <div class="btns">
             <button class="blue" id="goOB">Scan OzBargain now</button>
-            <button class="primary" id="goTools">Copy Autofill Bookmarklet</button>
+            <button class="primary" id="goEntry">Go to Entry Assist</button>
             <button id="goAnswers">Generate Answers</button>
           </div>
         </div>
 
         <div class="card">
           <div class="title">Setup Checklist</div>
-          <div class="small muted">Do once and you’re flying.</div>
+          <div class="small muted">Do once.</div>
           <div class="hr"></div>
           <div class="small">
-            <div>✅ Fill <b>Profile</b></div>
-            <div>✅ In <b>Tools</b>, copy bookmarklet and save as bookmark: <b>Autofill Comp</b></div>
-            <div>✅ Add this app to home screen</div>
+            <div>✅ Fill <b>Profile</b> (your details)</div>
+            <div>✅ Add this site to home screen</div>
+            <div>✅ Use <b>Entry Assist</b> for tap-copy + split-screen</div>
           </div>
           <div class="btns" style="margin-top:10px">
             <button id="goProfile">Profile</button>
@@ -253,13 +292,13 @@
 
       <div class="card">
         <div class="title">Your Competition List</div>
-        <div class="small muted">You’ll mark “Entered” here so OzBargain can avoid repeats.</div>
+        <div class="small muted">Tap “Entry Assist” on a comp to start the copy/paste flow.</div>
         <div class="list" id="list"></div>
       </div>
     `;
 
     document.getElementById("goOB").onclick = () => setTab("ozbargain");
-    document.getElementById("goTools").onclick = () => setTab("tools");
+    document.getElementById("goEntry").onclick = () => setTab("entry");
     document.getElementById("goAnswers").onclick = () => setTab("answers");
     document.getElementById("goProfile").onclick = () => setTab("profile");
     document.getElementById("goAdd").onclick = () => setTab("add");
@@ -289,11 +328,12 @@
             </div>
           </div>
           <div class="btns">
+            <button class="blue" data-act="assist" data-id="${c.id}">Entry Assist ⚡</button>
             <button class="primary" data-act="entered" data-id="${c.id}">Mark Entered ✅</button>
             <button data-act="ready" data-id="${c.id}">Ready</button>
             <button class="warn" data-act="skip" data-id="${c.id}">Skip</button>
             <button class="danger" data-act="del" data-id="${c.id}">Delete</button>
-            ${c.question ? `<button class="blue" data-act="toAnswers" data-id="${c.id}">Use question → Answers</button>` : ``}
+            ${c.question ? `<button class="ghost" data-act="toAnswers" data-id="${c.id}">Use question → Answers</button>` : ``}
           </div>
         </div>
       `;
@@ -307,7 +347,17 @@
   function handleCompAction(act, id){
     const idx = state.comps.findIndex(c => c.id === id);
     if (idx === -1) return;
+
+    if (act === "assist"){
+      state.entry.currentCompId = id;
+      state.entry.stepIndex = 0;
+      save();
+      setTab("entry");
+      return;
+    }
+
     if (act === "del"){ state.comps.splice(idx,1); save(); toast("Deleted"); render(); return; }
+
     if (act === "toAnswers"){
       const c = state.comps[idx];
       sessionStorage.setItem("ck_lastQuestion", c.question || "");
@@ -315,11 +365,210 @@
       setTab("answers");
       return;
     }
+
     const c = state.comps[idx];
     if (act === "entered") c.status = "entered";
     if (act === "ready") c.status = "ready";
     if (act === "skip") c.status = "skipped";
     save(); toast("Updated"); render();
+  }
+
+  // ---------------- Entry Assist ----------------
+  function renderEntry(){
+    const me = state.me;
+    const comp = state.comps.find(c => c.id === state.entry.currentCompId) || null;
+
+    const fullName = ((me.firstName||"") + " " + (me.lastName||"")).trim();
+    const addressOneLine = [
+      me.address1, me.address2, me.suburb, me.state, me.postcode, me.country
+    ].map(x => (x||"").trim()).filter(Boolean).join(", ");
+
+    const steps = [
+      { key:"Full name", val: fullName },
+      { key:"Email", val: me.email || "" },
+      { key:"Phone", val: me.phone || "" },
+      { key:"Address", val: addressOneLine },
+      { key:"DOB", val: me.dob || "" }
+    ].filter(s => s.val);
+
+    const stepIndex = Math.max(0, Math.min(steps.length-1, state.entry.stepIndex || 0));
+    const nextStep = steps[stepIndex] || null;
+
+    $app.innerHTML = `
+      <div class="card">
+        <div class="title">Entry Assist ⚡</div>
+        <div class="small muted">This doesn’t auto-submit forms. It makes entering fast: tap-copy → paste.</div>
+        <div class="hr"></div>
+
+        <div class="row two">
+          <div>
+            <label>Pick a competition</label>
+            <select id="pickComp">
+              <option value="">Select…</option>
+              ${state.comps.map(c => `
+                <option value="${esc(c.id)}" ${c.id===state.entry.currentCompId?"selected":""}>
+                  ${esc(c.title || "Untitled")} (${esc(c.status)})
+                </option>
+              `).join("")}
+            </select>
+          </div>
+          <div>
+            <label>Quick actions</label>
+            <div class="btns" style="margin-top:0">
+              <button class="blue bigBtn" id="howSplit">Split-screen how-to</button>
+              <button class="primary bigBtn" id="markEntered" ${comp? "":"disabled"}>Mark Entered ✅</button>
+            </div>
+          </div>
+        </div>
+
+        ${comp ? `
+          <div class="item" style="margin-top:10px">
+            <div class="itemTitle">${esc(comp.title || "Untitled")}</div>
+            <div class="small muted" style="margin-top:6px">
+              <span class="pill">${esc(comp.status)}</span>
+              ${comp.closeDate ? `<span class="pill">Closes ${esc(comp.closeDate)}</span>` : ``}
+              ${comp.source ? `<span class="pill">${esc(comp.source)}</span>` : ``}
+            </div>
+            <div class="btns" style="margin-top:10px">
+              <a class="pill b" target="_blank" rel="noopener" href="${esc(comp.url || "#")}">Open entry in new tab ↗</a>
+              ${comp.question ? `<button class="ghost" id="toAnswers">Use question → Answers</button>` : ``}
+            </div>
+          </div>
+        ` : `
+          <div class="small muted" style="margin-top:10px">Pick a competition above, then open it in a new tab.</div>
+        `}
+
+        <div class="hr"></div>
+
+        <div class="row two">
+          <div class="item">
+            <div class="title" style="font-size:15px">Tap-copy buttons</div>
+            <div class="small muted">Use in split-screen: open comp in Chrome tab, keep this panel open.</div>
+
+            <div class="btns" style="margin-top:10px">
+              <button class="primary bigBtn" id="copyNext" ${nextStep? "":"disabled"}>
+                Copy Next ${nextStep ? `(${esc(nextStep.key)})` : ""}
+              </button>
+              <button class="blue bigBtn" id="copyAll">Copy all as block</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="btns">
+              <button class="bigBtn" id="cName">Copy Full name</button>
+              <button class="bigBtn" id="cEmail">Copy Email</button>
+              <button class="bigBtn" id="cPhone">Copy Phone</button>
+              <button class="bigBtn" id="cAddr">Copy Address</button>
+              <button class="bigBtn" id="cDob">Copy DOB</button>
+            </div>
+
+            <div class="small muted" style="margin-top:10px">
+              Tip: After you paste a field, tap <b>Copy Next</b> again.
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="title" style="font-size:15px">Your details (preview)</div>
+            <div class="small muted">Edit in Profile if anything’s wrong.</div>
+            <div class="hr"></div>
+            <div class="small">
+              <div><b>Name:</b> ${esc(fullName || "—")}</div>
+              <div style="margin-top:6px"><b>Email:</b> ${esc(me.email || "—")}</div>
+              <div style="margin-top:6px"><b>Phone:</b> ${esc(me.phone || "—")}</div>
+              <div style="margin-top:6px"><b>Address:</b> ${esc(addressOneLine || "—")}</div>
+              <div style="margin-top:6px"><b>DOB:</b> ${esc(me.dob || "—")}</div>
+            </div>
+
+            <div class="btns" style="margin-top:10px">
+              <button id="goProfile">Edit Profile</button>
+            </div>
+          </div>
+        </div>
+
+        ${comp && comp.question ? `
+          <div class="card" style="margin-top:12px">
+            <div class="title">Question</div>
+            <div class="small muted">Generate an answer and copy it.</div>
+            <div class="hr"></div>
+            <div class="small"><b>${esc(comp.question)}</b></div>
+          </div>
+        ` : ``}
+      </div>
+    `;
+
+    const pick = document.getElementById("pickComp");
+    pick.onchange = () => {
+      state.entry.currentCompId = pick.value || "";
+      state.entry.stepIndex = 0;
+      save();
+      renderEntry();
+    };
+
+    document.getElementById("goProfile").onclick = () => setTab("profile");
+
+    const howBtn = document.getElementById("howSplit");
+    howBtn.onclick = () => {
+      alert(
+`Split-screen (Android):
+1) In Competition Kit, tap “Open entry in new tab”.
+2) Open Recents (square button / swipe up).
+3) Tap Chrome icon → “Split screen”.
+4) Pick Competition Kit for the other half.
+Now: paste into the form, and tap-copy from Entry Assist.
+
+If you don’t see Split screen:
+• Some phones hide it under the app icon in Recents.
+• Samsung: Recents → tap app icon → Split screen view.`
+      );
+    };
+
+    const mark = document.getElementById("markEntered");
+    mark.onclick = () => {
+      if (!comp) return;
+      comp.status = "entered";
+      save();
+      toast("Marked Entered ✅");
+      renderEntry();
+    };
+
+    if (comp && comp.question){
+      document.getElementById("toAnswers").onclick = () => {
+        sessionStorage.setItem("ck_lastQuestion", comp.question || "");
+        sessionStorage.setItem("ck_lastTitle", comp.title || "");
+        setTab("answers");
+      };
+    }
+
+    // Copy buttons
+    const fullBlock =
+`Full name: ${fullName}
+Email: ${me.email || ""}
+Phone: ${me.phone || ""}
+Address: ${addressOneLine}
+DOB: ${me.dob || ""}`.trim();
+
+    const btn = (id, label, text) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.onclick = () => copyText(label, text);
+    };
+
+    btn("cName", "Full name", fullName);
+    btn("cEmail", "Email", me.email || "");
+    btn("cPhone", "Phone", me.phone || "");
+    btn("cAddr", "Address", addressOneLine);
+    btn("cDob", "DOB", me.dob || "");
+
+    document.getElementById("copyAll").onclick = () => copyText("All details", fullBlock);
+
+    document.getElementById("copyNext").onclick = async () => {
+      if (!nextStep) return;
+      const ok = await copyText(nextStep.key, nextStep.val);
+      if (!ok) return;
+      state.entry.stepIndex = Math.min(steps.length-1, stepIndex + 1);
+      save();
+      renderEntry();
+    };
   }
 
   // ---------------- OzBargain ----------------
@@ -336,7 +585,6 @@
 
     const newCount = cache.filter(x => x.nodeId && !seen.has(x.nodeId)).length;
 
-    // Match against your list: nodeId or node URL in stored URL/source
     const findMatches = (x) => {
       const nodeId = x.nodeId || "";
       const nodeNeedle = nodeId ? `/node/${nodeId}` : "";
@@ -352,9 +600,7 @@
     $app.innerHTML = `
       <div class="card">
         <div class="title">OzBargain Scanner</div>
-        <div class="small muted">
-          Pulls latest competitions from OzBargain’s competitions listing. 1
-        </div>
+        <div class="small muted">Pulls latest comps. Add the ones you want into your list.</div>
 
         <div class="hr"></div>
 
@@ -389,7 +635,6 @@
             <div class="btns" style="margin-top:10px">
               <button class="blue" id="obCheck">Check now</button>
               <button id="obMarkAll">Mark all as seen</button>
-              <button class="ghost" id="obHint">What this does</button>
             </div>
           </div>
         </div>
@@ -397,7 +642,6 @@
         <div class="hr"></div>
 
         <div class="title" style="font-size:15px">Latest competitions</div>
-        <div class="small muted">It labels repeats so you don’t double-enter.</div>
         <div class="list" id="obList"></div>
       </div>
     `;
@@ -410,14 +654,6 @@
       prefs.hideInList = !!e.target.checked;
       save(); renderOzBargain();
     };
-
-    document.getElementById("obHint").onclick = () => alert(
-`This does NOT auto-submit forms (CAPTCHA/T&Cs).
-It DOES:
-• pull new comps from OzBargain
-• show Entered / In your list / New
-• let you add comps to your list fast.`
-    );
 
     document.getElementById("obMarkAll").onclick = () => {
       const ids = (state.ozbargain.cache || []).map(x => x.nodeId).filter(Boolean);
@@ -435,7 +671,7 @@ It DOES:
         toast("Updated ✅");
         renderOzBargain();
       } catch(e){
-        toast("Check failed (function not deployed yet).");
+        toast("Check failed (function issue).");
       }
     };
 
@@ -504,8 +740,9 @@ It DOES:
 
         if (url && state.comps.some(c => c.url === url)){ toast("Already in your list"); return; }
 
+        const newId = uid();
         state.comps.unshift({
-          id: uid(),
+          id: newId,
           title,
           url,
           type: "",
@@ -520,7 +757,10 @@ It DOES:
           state.ozbargain.seenNodeIds = Array.from(new Set([...(state.ozbargain.seenNodeIds||[]), node]));
         }
 
-        save(); toast("Added ✅"); renderOzBargain();
+        state.entry.currentCompId = newId; // jump straight into entry assist
+        state.entry.stepIndex = 0;
+
+        save(); toast("Added ✅ Opening Entry Assist"); setTab("entry");
       };
     });
 
@@ -539,7 +779,7 @@ It DOES:
     $app.innerHTML = `
       <div class="card">
         <div class="title">Add a Competition</div>
-        <div class="small muted">Title + entry link + question (if any). Done.</div>
+        <div class="small muted">Title + entry link + question (if any).</div>
         <div class="hr"></div>
 
         <div class="row two">
@@ -579,15 +819,15 @@ It DOES:
 
         <div class="btns">
           <button class="primary" id="a_save">Save</button>
-          <button class="blue" id="a_toAnswers">Save + go to Answers</button>
+          <button class="blue" id="a_toEntry">Save + Entry Assist</button>
         </div>
       </div>
     `;
 
     document.getElementById("a_save").onclick = () => saveComp(false);
-    document.getElementById("a_toAnswers").onclick = () => saveComp(true);
+    document.getElementById("a_toEntry").onclick = () => saveComp(true);
 
-    function saveComp(goAnswers){
+    function saveComp(goEntry){
       const c = {
         id: uid(),
         title: safe(document.getElementById("a_title").value),
@@ -608,10 +848,11 @@ It DOES:
       state.comps.unshift(c);
       save(); toast("Saved ✅");
 
-      if (goAnswers){
-        sessionStorage.setItem("ck_lastQuestion", c.question || "");
-        sessionStorage.setItem("ck_lastTitle", c.title || "");
-        setTab("answers");
+      if (goEntry){
+        state.entry.currentCompId = c.id;
+        state.entry.stepIndex = 0;
+        save();
+        setTab("entry");
       } else {
         setTab("dashboard");
       }
@@ -626,7 +867,7 @@ It DOES:
     $app.innerHTML = `
       <div class="card">
         <div class="title">Answer Forge</div>
-        <div class="small muted">Makes 25WOL answers fast, human-ish, and word-counted.</div>
+        <div class="small muted">Generate human-sounding answers fast (word-counted).</div>
         <div class="hr"></div>
 
         <div class="row">
@@ -843,7 +1084,7 @@ It DOES:
     const m = state.me;
     $app.innerHTML = `
       <div class="card">
-        <div class="title">Your Profile (Autofill data)</div>
+        <div class="title">Your Profile</div>
         <div class="small muted">Stored locally on your device.</div>
         <div class="hr"></div>
 
@@ -889,7 +1130,6 @@ It DOES:
 
         <div class="btns">
           <button class="primary" id="m_save">Save</button>
-          <button class="blue" id="m_tools">Update bookmarklet</button>
           <button class="danger" id="m_reset">Reset everything</button>
         </div>
       </div>
@@ -915,8 +1155,6 @@ It DOES:
       save(); toast("Saved ✅");
     };
 
-    document.getElementById("m_tools").onclick = () => setTab("tools");
-
     document.getElementById("m_reset").onclick = () => {
       if (!confirm("Reset profile + competitions?")) return;
       state = structuredClone(defaultState);
@@ -925,259 +1163,26 @@ It DOES:
     };
   }
 
-  // ---------------- Tools (Autofill Bookmarklet) ----------------
+  // ---------------- Tools ----------------
   function renderTools(){
-    const bm = buildBookmarkletV3(state.me);
-
     $app.innerHTML = `
       <div class="card">
         <div class="title">Tools</div>
-        <div class="small muted">
-          Autofills common fields. Highlights required “terms/agree” checkboxes instead of ticking them.
-        </div>
-
+        <div class="small muted">No bookmarklets needed. Use Entry Assist + split-screen for fast entry.</div>
         <div class="hr"></div>
-
-        <div class="title" style="font-size:15px">Autofill Bookmarklet</div>
-        <div class="small muted">
-          Create a browser bookmark named <b>Autofill Comp</b>, then paste the code below as the bookmark URL.
+        <div class="small">
+          <div><b>Recommended:</b> Add this site to your home screen so it behaves like an app.</div>
+          <div style="margin-top:8px">Chrome → ⋮ → <b>Add to Home screen</b>.</div>
         </div>
-
-        <div style="margin-top:10px">
-          <label>Bookmarklet code</label>
-          <textarea class="mono" id="bm" readonly></textarea>
-          <div class="btns">
-            <button class="primary" id="copyBm">Copy bookmarklet</button>
-          </div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="title" style="font-size:15px">Backup</div>
-        <div class="btns" style="margin-top:10px">
-          <button id="export">Export JSON</button>
-          <button id="import">Import JSON</button>
-        </div>
-        <input id="importFile" type="file" accept="application/json" style="display:none" />
       </div>
     `;
-
-    document.getElementById("bm").value = bm;
-
-    document.getElementById("copyBm").onclick = async () => {
-      try { await navigator.clipboard.writeText(bm); toast("Copied ✅"); }
-      catch { toast("Copy blocked by browser."); }
-    };
-
-    document.getElementById("export").onclick = () => {
-      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `competition-kit-v3-${todayISO()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    };
-
-    const importBtn = document.getElementById("import");
-    const importFile = document.getElementById("importFile");
-    importBtn.onclick = () => importFile.click();
-    importFile.onchange = async () => {
-      const f = importFile.files?.[0];
-      if (!f) return;
-      try{
-        const obj = JSON.parse(await f.text());
-        state = Object.assign({}, defaultState, obj);
-        save(); toast("Imported ✅"); render();
-      } catch {
-        toast("Import failed.");
-      }
-    };
   }
 
-  function buildBookmarkletV3(me){
-    const data = {
-      firstName: me.firstName || "",
-      lastName: me.lastName || "",
-      fullName: ((me.firstName||"")+" "+(me.lastName||"")).trim(),
-      email: me.email || "",
-      phone: (me.phone || "").replace(/\s+/g,""),
-      address1: me.address1 || "",
-      address2: me.address2 || "",
-      suburb: me.suburb || "",
-      state: (me.state || "").toUpperCase(),
-      postcode: me.postcode || "",
-      country: me.country || "",
-      dob: me.dob || "",
-      socials: me.socials || "",
-      gender: me.gender || ""
-    };
-
-    const js = `
-(()=>{try{
-const d=${JSON.stringify(data)};
-const norm=s=>(s||"").toLowerCase().replace(/\\s+/g," ").trim();
-const isVisible=(el)=>!!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
-const textOf=(el)=>{
-  let lbl='';
-  if(el.id){
-    const l=document.querySelector('label[for="'+el.id+'"]');
-    if(l) lbl=l.innerText||'';
-  }
-  const aria=el.getAttribute('aria-label')||'';
-  const ac=el.getAttribute('autocomplete')||'';
-  return norm([el.name, el.id, el.placeholder, lbl, aria, ac, el.type].filter(Boolean).join(' '));
-};
-const setVal=(el,val)=>{
-  if(!el||val==null||val==='') return false;
-  try{
-    if(el.disabled) return false;
-    if(!isVisible(el)) return false;
-    el.focus();
-    if(el.tagName==='SELECT'){
-      const want=norm(val);
-      const opts=[...el.options];
-      const found=opts.find(o=>norm(o.value)===want) || opts.find(o=>norm(o.textContent).includes(want));
-      if(found){ el.value=found.value; }
-    } else if(el.type==='radio' || el.type==='checkbox'){
-      return false;
-    } else {
-      el.value=val;
-    }
-    el.dispatchEvent(new Event('input',{bubbles:true}));
-    el.dispatchEvent(new Event('change',{bubbles:true}));
-    return true;
-  }catch{ return false; }
-};
-
-const els=[...document.querySelectorAll('input,textarea,select')]
-  .filter(e=>!e.disabled && e.type!=='hidden' && e.getAttribute('aria-hidden')!=='true');
-
-let filled=0;
-const fillBy=(keys,val)=>{
-  const ks=keys.map(norm);
-  for(const el of els){
-    const t=textOf(el);
-    if(ks.some(k=>t.includes(k))){
-      if(setVal(el,val)) filled++;
-    }
-  }
-};
-
-// Autocomplete wins first
-for(const el of els){
-  const ac=norm(el.getAttribute('autocomplete'));
-  if(ac==='given-name') { if(setVal(el,d.firstName)) filled++; }
-  if(ac==='family-name') { if(setVal(el,d.lastName)) filled++; }
-  if(ac==='name') { if(setVal(el,d.fullName)) filled++; }
-  if(ac==='email') { if(setVal(el,d.email)) filled++; }
-  if(ac==='tel') { if(setVal(el,d.phone)) filled++; }
-  if(ac==='address-line1') { if(setVal(el,d.address1)) filled++; }
-  if(ac==='address-line2') { if(setVal(el,d.address2)) filled++; }
-  if(ac==='address-level2') { if(setVal(el,d.suburb)) filled++; }
-  if(ac==='address-level1') { if(setVal(el,d.state)) filled++; }
-  if(ac==='postal-code') { if(setVal(el,d.postcode)) filled++; }
-  if(ac==='country') { if(setVal(el,d.country)) filled++; }
-  if(ac==='bday' || ac==='birthday') { if(setVal(el,d.dob)) filled++; }
-}
-
-// Pattern matching (includes confirm fields)
-fillBy(['first name','firstname','given name','fname','forename'], d.firstName);
-fillBy(['last name','lastname','surname','family name','lname'], d.lastName);
-fillBy(['full name','your name','name'], d.fullName);
-fillBy(['email','e-mail'], d.email);
-fillBy(['confirm email','email confirmation','re-enter email','repeat email'], d.email);
-fillBy(['phone','mobile','contact number','telephone','tel'], d.phone);
-fillBy(['address line 1','address1','street','street address','address'], d.address1);
-fillBy(['address line 2','address2','unit','apartment','suite'], d.address2);
-fillBy(['suburb','city','town','locality'], d.suburb);
-fillBy(['state','province','region'], d.state);
-fillBy(['postcode','postal','zip'], d.postcode);
-fillBy(['country'], d.country);
-fillBy(['date of birth','dob','birth date','birthday'], d.dob);
-fillBy(['instagram','ig','tiktok','social','handle'], d.socials);
-
-// Email/tel type backup
-for(const el of els){
-  if(el.type==='email') { if(setVal(el,d.email)) filled++; }
-  if(el.type==='tel') { if(setVal(el,d.phone)) filled++; }
-}
-
-// Radios (gender)
-if(d.gender){
-  const radios=els.filter(el=>el.type==='radio');
-  for(const el of radios){
-    const t=textOf(el);
-    if(t.includes('gender') || t.includes('sex')){
-      const id=el.id;
-      let lbl='';
-      if(id){
-        const l=document.querySelector('label[for="'+id+'"]');
-        if(l) lbl=norm(l.innerText||'');
-      }
-      const val=norm(el.value||'');
-      const want=norm(d.gender);
-      if(lbl.includes(want) || val===want){
-        el.checked=true;
-        el.dispatchEvent(new Event('change',{bubbles:true}));
-      }
-    }
-  }
-}
-
-// Checkboxes: highlight terms/agree/required; don’t tick marketing
-const checkboxHints=[];
-const checkboxes=els.filter(el=>el.type==='checkbox');
-for(const el of checkboxes){
-  const t=textOf(el);
-  const isTerms = t.includes('terms') || t.includes('conditions') || t.includes('agree') || t.includes('privacy') || t.includes('consent');
-  const isMarketing = t.includes('newsletter') || t.includes('marketing') || t.includes('offers') || t.includes('promotions');
-  const required = el.required || t.includes('required');
-
-  if((isTerms || required) && !isMarketing && !el.checked){
-    el.style.outline = '3px solid rgba(245,158,11,.9)';
-    el.style.outlineOffset = '2px';
-    checkboxHints.push('Tick highlighted terms/required checkboxes if you agree.');
-  }
-}
-
-// Required blanks highlight
-const blanks=[];
-for(const el of els){
-  if(!isVisible(el)) continue;
-  const t=textOf(el);
-  const required = el.required || t.includes('required');
-  if(required){
-    const empty = (el.tagName==='SELECT') ? !el.value : (!el.value || !el.value.trim());
-    if(empty && el.type!=='checkbox' && el.type!=='radio'){
-      el.style.outline='3px solid rgba(239,68,68,.9)';
-      el.style.outlineOffset='2px';
-      blanks.push(t.slice(0,60));
-    }
-  }
-}
-
-let msg="Autofill done: filled ~"+filled+" fields.";
-if(checkboxHints.length) msg+="\\n\\n⚠️ "+Array.from(new Set(checkboxHints)).join(" ");
-if(blanks.length) msg+="\\n\\n❗Required fields still blank (highlighted in red).";
-alert(msg);
-}catch(e){alert("Autofill failed: "+e.message);}})();
-`.trim();
-
-    return "javascript:" + encodeURIComponent(js).replace(/%20/g," ");
-  }
-
-  // ---------------- Tabs ----------------
-  function setTab(next){
-    tab = next;
-    document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-    render();
-  }
-  document.querySelectorAll(".tab").forEach(btn => btn.onclick = () => setTab(btn.dataset.tab));
-
+  // ---------------- Render ----------------
   function render(){
     renderHeaderStats();
     if (tab === "dashboard") renderDashboard();
+    if (tab === "entry") renderEntry();
     if (tab === "ozbargain") renderOzBargain();
     if (tab === "add") renderAdd();
     if (tab === "answers") renderAnswers();
@@ -1185,7 +1190,6 @@ alert(msg);
     if (tab === "tools") renderTools();
   }
 
-  // first paint
   render();
 })();
 </script>
