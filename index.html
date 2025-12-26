@@ -1,0 +1,1193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Competition Kit V3</title>
+  <meta name="theme-color" content="#0b1020" />
+  <style>
+    :root{
+      --bg0:#070a12; --bg1:#0b1020; --card:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.10); --text:#eaf0ff; --muted:rgba(234,240,255,.68);
+      --accent:#22c55e; --accent2:#60a5fa; --warn:#f59e0b; --bad:#ef4444;
+      --shadow: 0 16px 50px rgba(0,0,0,.40); --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial;
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 15% -10%, rgba(96,165,250,.25), transparent 55%),
+                  radial-gradient(900px 500px at 95% 0%, rgba(34,197,94,.20), transparent 55%),
+                  linear-gradient(180deg,var(--bg0),var(--bg1));
+      min-height:100vh;
+    }
+    header{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(180deg, rgba(11,16,32,.92), rgba(11,16,32,.70));
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:14px}
+    .top{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:.2px}
+    .logo{
+      width:34px;height:34px;border-radius:12px;
+      background: radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.9), rgba(255,255,255,.0) 60%),
+                  linear-gradient(135deg, rgba(34,197,94,.9), rgba(96,165,250,.9));
+      box-shadow: 0 10px 25px rgba(0,0,0,.35);
+    }
+    .brand small{display:block;color:var(--muted);font-weight:700;margin-top:2px}
+    .stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;color:var(--muted);font-weight:700;font-size:12px}
+    .chip{padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background: rgba(255,255,255,.04)}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .tab{
+      padding:10px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.03); color:var(--text); font-weight:850; cursor:pointer;
+      user-select:none; display:inline-flex; align-items:center; gap:8px;
+      transition:.15s transform ease, .15s background ease, .15s border-color ease;
+    }
+    .tab:active{transform:scale(.98)}
+    .tab.active{background: rgba(34,197,94,.14);border-color: rgba(34,197,94,.45)}
+    main{max-width:1100px;margin:0 auto;padding:14px;display:grid;gap:12px}
+    .grid{display:grid;gap:12px;grid-template-columns:1fr}
+    @media(min-width:980px){.grid{grid-template-columns:1.2fr .8fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+    .title{font-size:16px;font-weight:950;letter-spacing:.2px}
+    .muted{color:var(--muted);font-weight:650}
+    .small{font-size:12px;line-height:1.35}
+    .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px;font-weight:750}
+    input,select,textarea{
+      width:100%;padding:11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22); color:var(--text); outline:none
+    }
+    textarea{min-height:92px;resize:vertical}
+    .row{display:grid;gap:10px;grid-template-columns:1fr}
+    @media(min-width:700px){
+      .row.two{grid-template-columns:1fr 1fr}
+      .row.three{grid-template-columns:1fr 1fr 1fr}
+    }
+    .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    button{
+      border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.04); color:var(--text);
+      padding:10px 12px;border-radius:14px;font-weight:900;cursor:pointer;
+      transition:.15s transform ease, .15s background ease, .15s border-color ease;
+    }
+    button:active{transform:scale(.98)}
+    button.primary{background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.48)}
+    button.blue{background: rgba(96,165,250,.16); border-color: rgba(96,165,250,.48)}
+    button.warn{background: rgba(245,158,11,.14); border-color: rgba(245,158,11,.46)}
+    button.danger{background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.46)}
+    button.ghost{background: transparent}
+    button:disabled{opacity:.55; cursor:not-allowed}
+    .pill{
+      display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.03);
+      font-size:12px;font-weight:850;
+    }
+    .pill.g{background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.40)}
+    .pill.b{background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.40)}
+    .pill.w{background: rgba(245,158,11,.10); border-color: rgba(245,158,11,.42)}
+    .pill.r{background: rgba(239,68,68,.10); border-color: rgba(239,68,68,.42)}
+    .list{display:grid;gap:10px;margin-top:10px}
+    .item{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background: rgba(0,0,0,.18)}
+    .itemTop{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+    .itemTitle{font-weight:950}
+    a{color:#a7c7ff;text-decoration:none;font-weight:850}
+    .mono{font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+    .toast{
+      position:fixed;left:50%;bottom:16px;transform:translateX(-50%);
+      padding:10px 12px;background: rgba(11,16,32,.95);border:1px solid rgba(255,255,255,.14);
+      border-radius:14px;display:none;box-shadow:0 16px 50px rgba(0,0,0,.45);z-index:999;max-width:92vw;text-align:center;font-weight:900;
+    }
+    .badgeDot{width:8px;height:8px;border-radius:99px;background: var(--accent2); display:inline-block}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          Competition Kit <span class="muted">V3</span>
+          <small>OzBargain scanner + smarter autofill + anti-repeat labels</small>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="chip" id="statNewOB">OzBargain new: 0</div>
+        <div class="chip" id="statOpen">Open: 0</div>
+        <div class="chip" id="statEntered">Entered: 0</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="dashboard">🏁 Dashboard</button>
+      <button class="tab" data-tab="ozbargain">🧲 OzBargain <span id="obDot" style="display:none" class="badgeDot"></span></button>
+      <button class="tab" data-tab="add">➕ Add</button>
+      <button class="tab" data-tab="answers">✍️ Answers</button>
+      <button class="tab" data-tab="profile">👤 Profile</button>
+      <button class="tab" data-tab="tools">🧰 Tools</button>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const LS_KEY = "competition_kit_v3";
+  const todayISO = () => new Date().toISOString().slice(0,10);
+
+  const defaultState = {
+    me: {
+      firstName:"", lastName:"", email:"", phone:"",
+      address1:"", address2:"", suburb:"", state:"", postcode:"", country:"Australia",
+      dob:"",
+      socials:"",
+      angle:"",
+      gender:""
+    },
+    comps: [],
+    ozbargain: {
+      seenNodeIds: [],
+      cache: [],
+      lastCheckedAt: "",
+      prefs: {
+        hideEntered: true,   // default ON
+        hideInList: false
+      }
+    }
+  };
+
+  const $app = document.getElementById("app");
+  const $toast = document.getElementById("toast");
+  let state = load();
+  let tab = "dashboard";
+
+  function load(){
+    try { return Object.assign({}, defaultState, JSON.parse(localStorage.getItem(LS_KEY) || "{}")); }
+    catch { return structuredClone(defaultState); }
+  }
+  function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); renderHeaderStats(); }
+  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
+  function safe(s){ return (s ?? "").toString().trim(); }
+  function esc(s){
+    return (s ?? "").toString()
+      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
+  function toast(msg){
+    $toast.textContent = msg;
+    $toast.style.display = "block";
+    setTimeout(() => $toast.style.display = "none", 1700);
+  }
+
+  function isOpen(c){
+    if (!c.closeDate) return true;
+    const now = new Date(todayISO());
+    const end = new Date(c.closeDate);
+    return end >= now;
+  }
+
+  function countNewOzBargain(){
+    const seen = new Set(state.ozbargain.seenNodeIds || []);
+    const cache = state.ozbargain.cache || [];
+    return cache.filter(x => x.nodeId && !seen.has(x.nodeId)).length;
+  }
+
+  function renderHeaderStats(){
+    const open = state.comps.filter(c => ["new","ready"].includes(c.status) && isOpen(c));
+    const entered = state.comps.filter(c => c.status === "entered").length;
+
+    const newOB = countNewOzBargain();
+    document.getElementById("statNewOB").textContent = `OzBargain new: ${newOB}`;
+    document.getElementById("statOpen").textContent = `Open: ${open.length}`;
+    document.getElementById("statEntered").textContent = `Entered: ${entered}`;
+    document.getElementById("obDot").style.display = newOB > 0 ? "inline-block" : "none";
+  }
+
+  // ---------------- Dashboard ----------------
+  function renderDashboard(){
+    const open = state.comps.filter(c => ["new","ready"].includes(c.status) && isOpen(c));
+    const newOB = countNewOzBargain();
+
+    $app.innerHTML = `
+      <div class="grid">
+        <div class="card">
+          <div class="title">Daily Flow</div>
+          <div class="small muted">Scan OzBargain → open comp → run Autofill → paste answer → you hit submit.</div>
+          <div class="hr"></div>
+
+          <div class="row three">
+            <div><label>Today</label><div class="pill b">${esc(todayISO())}</div></div>
+            <div><label>New OzBargain comps</label><div class="pill ${newOB? "w":"g"}">${newOB}</div></div>
+            <div><label>Open comps in your list</label><div class="pill g">${open.length}</div></div>
+          </div>
+
+          <div class="btns">
+            <button class="blue" id="goOB">Scan OzBargain now</button>
+            <button class="primary" id="goTools">Copy Autofill Bookmarklet</button>
+            <button id="goAnswers">Generate Answers</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="title">Setup Checklist</div>
+          <div class="small muted">Do once and you’re flying.</div>
+          <div class="hr"></div>
+          <div class="small">
+            <div>✅ Fill <b>Profile</b></div>
+            <div>✅ In <b>Tools</b>, copy bookmarklet and save as bookmark: <b>Autofill Comp</b></div>
+            <div>✅ Add this app to home screen</div>
+          </div>
+          <div class="btns" style="margin-top:10px">
+            <button id="goProfile">Profile</button>
+            <button id="goAdd">Add comp</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Your Competition List</div>
+        <div class="small muted">You’ll mark “Entered” here so OzBargain can avoid repeats.</div>
+        <div class="list" id="list"></div>
+      </div>
+    `;
+
+    document.getElementById("goOB").onclick = () => setTab("ozbargain");
+    document.getElementById("goTools").onclick = () => setTab("tools");
+    document.getElementById("goAnswers").onclick = () => setTab("answers");
+    document.getElementById("goProfile").onclick = () => setTab("profile");
+    document.getElementById("goAdd").onclick = () => setTab("add");
+
+    const list = document.getElementById("list");
+    if (!state.comps.length){
+      list.innerHTML = `<div class="small muted">No comps saved yet. Use OzBargain tab or Add tab.</div>`;
+      return;
+    }
+
+    list.innerHTML = state.comps.map(c => {
+      const link = c.url ? `<a target="_blank" rel="noopener" href="${esc(c.url)}">Open entry ↗</a>` : "";
+      const q = c.question ? `<div class="small" style="margin-top:6px"><b>Q:</b> ${esc(c.question)}</div>` : "";
+      return `
+        <div class="item">
+          <div class="itemTop">
+            <div>
+              <div class="itemTitle">${esc(c.title || "Untitled")}</div>
+              <div class="small muted" style="margin-top:6px">
+                <span class="pill">${esc(c.status)}</span>
+                ${c.type ? `<span class="pill">${esc(c.type)}</span>` : ``}
+                ${c.closeDate ? `<span class="pill">Closes ${esc(c.closeDate)}</span>` : ``}
+                ${c.source ? `<span class="pill">${esc(c.source)}</span>` : ``}
+              </div>
+              <div class="small" style="margin-top:6px">${link}</div>
+              ${q}
+            </div>
+          </div>
+          <div class="btns">
+            <button class="primary" data-act="entered" data-id="${c.id}">Mark Entered ✅</button>
+            <button data-act="ready" data-id="${c.id}">Ready</button>
+            <button class="warn" data-act="skip" data-id="${c.id}">Skip</button>
+            <button class="danger" data-act="del" data-id="${c.id}">Delete</button>
+            ${c.question ? `<button class="blue" data-act="toAnswers" data-id="${c.id}">Use question → Answers</button>` : ``}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    list.querySelectorAll("button[data-act]").forEach(btn => {
+      btn.onclick = () => handleCompAction(btn.dataset.act, btn.dataset.id);
+    });
+  }
+
+  function handleCompAction(act, id){
+    const idx = state.comps.findIndex(c => c.id === id);
+    if (idx === -1) return;
+    if (act === "del"){ state.comps.splice(idx,1); save(); toast("Deleted"); render(); return; }
+    if (act === "toAnswers"){
+      const c = state.comps[idx];
+      sessionStorage.setItem("ck_lastQuestion", c.question || "");
+      sessionStorage.setItem("ck_lastTitle", c.title || "");
+      setTab("answers");
+      return;
+    }
+    const c = state.comps[idx];
+    if (act === "entered") c.status = "entered";
+    if (act === "ready") c.status = "ready";
+    if (act === "skip") c.status = "skipped";
+    save(); toast("Updated"); render();
+  }
+
+  // ---------------- OzBargain ----------------
+  async function fetchOzBargain(){
+    const res = await fetch("/.netlify/functions/ozbargain?limit=50");
+    if (!res.ok) throw new Error("Fetch failed");
+    return await res.json();
+  }
+
+  function renderOzBargain(){
+    const cache = state.ozbargain.cache || [];
+    const seen = new Set(state.ozbargain.seenNodeIds || []);
+    const prefs = state.ozbargain.prefs || (state.ozbargain.prefs = { hideEntered:true, hideInList:false });
+
+    const newCount = cache.filter(x => x.nodeId && !seen.has(x.nodeId)).length;
+
+    // Match against your list: nodeId or node URL in stored URL/source
+    const findMatches = (x) => {
+      const nodeId = x.nodeId || "";
+      const nodeNeedle = nodeId ? `/node/${nodeId}` : "";
+      return state.comps.filter(c => {
+        const url = (c.url || "");
+        const src = (c.source || "");
+        const byNode = nodeNeedle && (url.includes(nodeNeedle) || src.includes(`node/${nodeId}`));
+        const byUrl = url && (url === (x.entryUrl||"") || url === (x.nodeUrl||""));
+        return byNode || byUrl;
+      });
+    };
+
+    $app.innerHTML = `
+      <div class="card">
+        <div class="title">OzBargain Scanner</div>
+        <div class="small muted">
+          Pulls latest competitions from OzBargain’s competitions listing. 1
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row two">
+          <div>
+            <label>Status</label>
+            <div class="pill ${newCount? "w":"g"}">New since last seen: ${newCount}</div>
+          </div>
+          <div>
+            <label>Last checked</label>
+            <div class="pill">${esc(state.ozbargain.lastCheckedAt || "Never")}</div>
+          </div>
+        </div>
+
+        <div class="row two" style="margin-top:10px">
+          <div class="item">
+            <div class="small muted"><b>Filters</b></div>
+            <div class="small" style="margin-top:8px">
+              <label style="display:flex;gap:10px;align-items:center;cursor:pointer">
+                <input type="checkbox" id="f_hideEntered" ${prefs.hideEntered ? "checked":""} style="width:auto">
+                Hide competitions already marked <b>Entered</b>
+              </label>
+              <label style="display:flex;gap:10px;align-items:center;cursor:pointer;margin-top:8px">
+                <input type="checkbox" id="f_hideInList" ${prefs.hideInList ? "checked":""} style="width:auto">
+                Hide competitions already <b>In your list</b>
+              </label>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="small muted"><b>Actions</b></div>
+            <div class="btns" style="margin-top:10px">
+              <button class="blue" id="obCheck">Check now</button>
+              <button id="obMarkAll">Mark all as seen</button>
+              <button class="ghost" id="obHint">What this does</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="title" style="font-size:15px">Latest competitions</div>
+        <div class="small muted">It labels repeats so you don’t double-enter.</div>
+        <div class="list" id="obList"></div>
+      </div>
+    `;
+
+    document.getElementById("f_hideEntered").onchange = (e) => {
+      prefs.hideEntered = !!e.target.checked;
+      save(); renderOzBargain();
+    };
+    document.getElementById("f_hideInList").onchange = (e) => {
+      prefs.hideInList = !!e.target.checked;
+      save(); renderOzBargain();
+    };
+
+    document.getElementById("obHint").onclick = () => alert(
+`This does NOT auto-submit forms (CAPTCHA/T&Cs).
+It DOES:
+• pull new comps from OzBargain
+• show Entered / In your list / New
+• let you add comps to your list fast.`
+    );
+
+    document.getElementById("obMarkAll").onclick = () => {
+      const ids = (state.ozbargain.cache || []).map(x => x.nodeId).filter(Boolean);
+      state.ozbargain.seenNodeIds = Array.from(new Set([...(state.ozbargain.seenNodeIds||[]), ...ids]));
+      save(); toast("Marked all as seen"); renderOzBargain();
+    };
+
+    document.getElementById("obCheck").onclick = async () => {
+      try{
+        toast("Checking…");
+        const data = await fetchOzBargain();
+        state.ozbargain.cache = data.items || [];
+        state.ozbargain.lastCheckedAt = new Date().toLocaleString();
+        save();
+        toast("Updated ✅");
+        renderOzBargain();
+      } catch(e){
+        toast("Check failed (function not deployed yet).");
+      }
+    };
+
+    const obList = document.getElementById("obList");
+    if (!cache.length){
+      obList.innerHTML = `<div class="small muted">No data yet. Hit <b>Check now</b>.</div>`;
+      return;
+    }
+
+    const rows = [];
+    for (const x of cache){
+      const matches = findMatches(x);
+      const inList = matches.length > 0;
+      const entered = matches.some(m => m.status === "entered");
+      const isNew = x.nodeId && !seen.has(x.nodeId);
+
+      if (prefs.hideEntered && entered) continue;
+      if (prefs.hideInList && inList) continue;
+
+      const statusPill = entered
+        ? `<span class="pill g">Entered ✅</span>`
+        : inList
+          ? `<span class="pill b">In your list</span>`
+          : isNew
+            ? `<span class="pill w">New</span>`
+            : `<span class="pill">Seen</span>`;
+
+      rows.push(`
+        <div class="item">
+          <div class="itemTop">
+            <div>
+              <div class="itemTitle">${esc(x.title || "Untitled")}</div>
+              <div class="small muted" style="margin-top:6px">
+                ${statusPill}
+                ${x.sourceDomain ? `<span class="pill">${esc(x.sourceDomain)}</span>` : ``}
+                ${x.nodeId ? `<span class="pill">node/${esc(x.nodeId)}</span>` : ``}
+              </div>
+              <div class="small" style="margin-top:6px">
+                <a target="_blank" rel="noopener" href="${esc(x.nodeUrl)}">Open OzBargain post ↗</a>
+              </div>
+            </div>
+          </div>
+          <div class="btns">
+            <button class="primary" ${inList ? "disabled" : ""} data-obadd="1"
+              data-title="${esc(x.title||"")}"
+              data-url="${esc(x.entryUrl||x.nodeUrl||"")}"
+              data-node="${esc(x.nodeId||"")}">
+              ${inList ? "Already saved" : "Add to my list"}
+            </button>
+            <button data-obseen="1" data-node="${esc(x.nodeId||"")}">Mark seen</button>
+          </div>
+        </div>
+      `);
+    }
+
+    obList.innerHTML = rows.length
+      ? rows.join("")
+      : `<div class="small muted">Nothing to show with current filters.</div>`;
+
+    obList.querySelectorAll("button[data-obadd]").forEach(btn => {
+      btn.onclick = () => {
+        if (btn.disabled) { toast("Already in your list"); return; }
+        const title = btn.getAttribute("data-title") || "";
+        const url = btn.getAttribute("data-url") || "";
+        const node = btn.getAttribute("data-node") || "";
+
+        if (url && state.comps.some(c => c.url === url)){ toast("Already in your list"); return; }
+
+        state.comps.unshift({
+          id: uid(),
+          title,
+          url,
+          type: "",
+          closeDate: "",
+          status: "new",
+          question: "",
+          createdAt: new Date().toISOString(),
+          source: node ? `OzBargain node/${node}` : "OzBargain"
+        });
+
+        if (node){
+          state.ozbargain.seenNodeIds = Array.from(new Set([...(state.ozbargain.seenNodeIds||[]), node]));
+        }
+
+        save(); toast("Added ✅"); renderOzBargain();
+      };
+    });
+
+    obList.querySelectorAll("button[data-obseen]").forEach(btn => {
+      btn.onclick = () => {
+        const node = btn.getAttribute("data-node") || "";
+        if (!node) return;
+        state.ozbargain.seenNodeIds = Array.from(new Set([...(state.ozbargain.seenNodeIds||[]), node]));
+        save(); toast("Seen ✅"); renderOzBargain();
+      };
+    });
+  }
+
+  // ---------------- Add ----------------
+  function renderAdd(){
+    $app.innerHTML = `
+      <div class="card">
+        <div class="title">Add a Competition</div>
+        <div class="small muted">Title + entry link + question (if any). Done.</div>
+        <div class="hr"></div>
+
+        <div class="row two">
+          <div><label>Title</label><input id="a_title" placeholder="e.g., Win a holiday" /></div>
+          <div><label>Entry link (URL)</label><input id="a_url" placeholder="https://..." /></div>
+        </div>
+
+        <div class="row three">
+          <div>
+            <label>Type</label>
+            <select id="a_type">
+              <option value="">Select…</option>
+              <option>Random draw</option>
+              <option>25 words or less</option>
+              <option>Skill-based</option>
+              <option>Photo/Video entry</option>
+              <option>Referral</option>
+            </select>
+          </div>
+          <div><label>Close date</label><input id="a_close" type="date" /></div>
+          <div>
+            <label>Status</label>
+            <select id="a_status">
+              <option value="new">new</option>
+              <option value="ready">ready</option>
+              <option value="entered">entered</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Question (optional)</label>
+            <textarea id="a_q" placeholder="Paste the question here (if any)"></textarea>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="a_save">Save</button>
+          <button class="blue" id="a_toAnswers">Save + go to Answers</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("a_save").onclick = () => saveComp(false);
+    document.getElementById("a_toAnswers").onclick = () => saveComp(true);
+
+    function saveComp(goAnswers){
+      const c = {
+        id: uid(),
+        title: safe(document.getElementById("a_title").value),
+        url: safe(document.getElementById("a_url").value),
+        type: safe(document.getElementById("a_type").value),
+        closeDate: safe(document.getElementById("a_close").value),
+        status: safe(document.getElementById("a_status").value) || "new",
+        question: safe(document.getElementById("a_q").value),
+        createdAt: new Date().toISOString()
+      };
+
+      if (c.url && state.comps.some(x => x.url && x.url === c.url)){
+        toast("Already added (same link).");
+        return;
+      }
+      if (!c.title && !c.url){ toast("Add at least a title or a link."); return; }
+
+      state.comps.unshift(c);
+      save(); toast("Saved ✅");
+
+      if (goAnswers){
+        sessionStorage.setItem("ck_lastQuestion", c.question || "");
+        sessionStorage.setItem("ck_lastTitle", c.title || "");
+        setTab("answers");
+      } else {
+        setTab("dashboard");
+      }
+    }
+  }
+
+  // ---------------- Answers ----------------
+  function renderAnswers(){
+    const lastQ = sessionStorage.getItem("ck_lastQuestion") || "";
+    const lastT = sessionStorage.getItem("ck_lastTitle") || "";
+
+    $app.innerHTML = `
+      <div class="card">
+        <div class="title">Answer Forge</div>
+        <div class="small muted">Makes 25WOL answers fast, human-ish, and word-counted.</div>
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <label>Question</label>
+            <textarea id="q_text" placeholder="Paste the question here">${esc(lastQ)}</textarea>
+            ${lastT ? `<div class="small muted">From: <b>${esc(lastT)}</b></div>` : ``}
+          </div>
+        </div>
+
+        <div class="row three">
+          <div>
+            <label>Word limit</label>
+            <select id="q_limit">
+              <option value="25">25 words</option>
+              <option value="50">50 words</option>
+              <option value="100">100 words</option>
+              <option value="0">No limit</option>
+            </select>
+          </div>
+          <div>
+            <label>Tone</label>
+            <select id="q_tone">
+              <option>Funny + clever</option>
+              <option>Warm + heartfelt</option>
+              <option>Bold + confident</option>
+              <option>Simple + sincere</option>
+              <option>Poetic</option>
+            </select>
+          </div>
+          <div>
+            <label>Style</label>
+            <select id="q_style">
+              <option>One-liner hook</option>
+              <option>Short punchy lines</option>
+              <option>Mini story</option>
+              <option>Rhyme-lite</option>
+              <option>Call-to-action</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label>Personal angle</label>
+            <input id="q_angle" value="${esc(state.me.angle)}" placeholder="Sydney-based, love tech, family, etc."/>
+          </div>
+          <div>
+            <label>Optional keywords (comma separated)</label>
+            <input id="q_keywords" placeholder="e.g., summer, beach, mates, gratitude" />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="gen10">Generate 10</button>
+          <button class="blue" id="genMore">Generate 10 more</button>
+          <button id="copyBest">Copy best</button>
+          <button class="ghost" id="clearOut">Clear</button>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div>
+            <label>Results (tap a line to set as “best”)</label>
+            <textarea id="out" class="mono" placeholder="Ideas will appear here"></textarea>
+            <div class="small muted" id="bestLine">Best: (none)</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const $q = document.getElementById("q_text");
+    const $limit = document.getElementById("q_limit");
+    const $tone = document.getElementById("q_tone");
+    const $style = document.getElementById("q_style");
+    const $angle = document.getElementById("q_angle");
+    const $kw = document.getElementById("q_keywords");
+    const $out = document.getElementById("out");
+    const $bestLine = document.getElementById("bestLine");
+    let best = "";
+
+    function setBest(line){
+      best = line;
+      $bestLine.innerHTML = `Best: <b>${esc(line)}</b>`;
+    }
+
+    $out.addEventListener("click", () => {
+      const pos = $out.selectionStart;
+      const text = $out.value;
+      const start = text.lastIndexOf("\n", pos - 1) + 1;
+      const end = text.indexOf("\n", pos);
+      const line = text.slice(start, end === -1 ? text.length : end).trim();
+      if (line) { setBest(line); toast("Set as best ✅"); }
+    });
+
+    function safeText(s){ return (s ?? "").toString().trim(); }
+    function wordCount(s){ return safeText(s).split(/\s+/).filter(Boolean).length; }
+    function trimToLimit(text, limit){
+      if (!limit || limit <= 0) return text.trim();
+      let t = text.trim().replace(/\s+/g," ");
+      if (wordCount(t) <= limit) return t;
+      const fillers = ["really","very","just","actually","literally","basically","truly","simply","honestly","quite","that","so"];
+      let words = t.split(" ").filter(w => !fillers.includes(w.toLowerCase()));
+      while (words.length > limit) words.pop();
+      return words.join(" ").replace(/\s+([.,!?;:])/g,"$1").trim();
+    }
+
+    function generateAnswers({question, limit, tone, style, angle, keywords, n=10}){
+      const hooks = {
+        "Funny + clever":["I’m not saying I’m competitive, but","My plan is simple:","If enthusiasm counted as currency,","Let’s be honest —","Plot twist:"],
+        "Warm + heartfelt":["This would mean a lot because","I’d love to win because","A win like this would bring","It’s not just a prize — it’s","This would be a bright spot because"],
+        "Bold + confident":["Pick me because","Here’s why I’m the right winner:","No fluff —","I’ll make this prize count:","I’m ready to turn this into"],
+        "Simple + sincere":["I’d love to win because","This prize would help because","Honestly, I’d be stoked because","I’d use it to","It would make my week because"],
+        "Poetic":["A small win can be a big light —","Call it luck or kindness, but","If joy had a postcode, it’d be","In the ordinary days, this would be","Let it land in my hands and"]
+      };
+      const endings = {
+        "Funny + clever":["and I’ll celebrate with maximum class (and snacks).","and I’ll put it to work immediately — no dust collecting.","and promise to brag responsibly.","and I’ll smile like I invented weekends.","and I’ll make it weirdly legendary."],
+        "Warm + heartfelt":["and I’d share the joy with the people around me.","and turn it into a memory worth keeping.","and honestly, it would make my year.","and I’d be grateful from day one.","and I’d use it in a way that matters."],
+        "Bold + confident":["and I’ll prove it was the right call.","and you’ll see the impact straight away.","and I’ll do it justice — guaranteed.","and I’ll make it count.","and I’ll turn it into a proper story."],
+        "Simple + sincere":["and I’d genuinely appreciate it.","and it would be used every day.","and I’d be over the moon.","and it would make life easier.","and I’d be grateful, full stop."],
+        "Poetic":["like sunlight finally finding the room.","and I’ll carry the joy forward.","as a thank-you I can actually hold.","with a grin that lasts longer than the moment.","and let it become a little miracle in my week."]
+      };
+      const styles = {
+        "Short punchy lines": (hook, core, end) => `${hook} ${core} — ${end}`,
+        "One-liner hook": (hook, core, end) => `${hook} ${core}, ${end}`,
+        "Mini story": (hook, core, end) => `${hook} ${core}. ${end}`,
+        "Rhyme-lite": (hook, core, end) => `${hook} ${core}; ${end}`,
+        "Call-to-action": (hook, core, end) => `${hook} ${core}. Choose me and ${end}`
+      };
+      const coreBits = [
+        "I’ll use it to level up my day-to-day",
+        "I’ll put it to good use straight away",
+        "it would turn a regular week into a great one",
+        "it’s exactly what I’ve been hoping for",
+        "it would be a win I’ll actually remember",
+        "I’d make the most of it, no question",
+        "it would bring real joy (and real value)"
+      ];
+
+      const kw = (keywords && keywords.length) ? keywords : [];
+      const angleBit = angle ? angle : "";
+      function spice(){
+        const s = [];
+        if (angleBit) s.push(angleBit);
+        if (kw.length) s.push(kw[Math.floor(Math.random()*kw.length)]);
+        return s.filter(Boolean).join(", ");
+      }
+
+      const wantsWhy = /why|deserve|because|tell us|in \d+ words/.test(question.toLowerCase());
+      const toneHooks = hooks[tone] || hooks["Simple + sincere"];
+      const toneEnds = endings[tone] || endings["Simple + sincere"];
+      const styleFn = styles[style] || styles["One-liner hook"];
+
+      const outputs = [];
+      for (let i=0;i<n;i++){
+        const hook = toneHooks[Math.floor(Math.random()*toneHooks.length)];
+        const end = toneEnds[Math.floor(Math.random()*toneEnds.length)];
+        const core = coreBits[Math.floor(Math.random()*coreBits.length)];
+        const sp = spice();
+        const core2 = sp ? `${core} (${sp})` : core;
+
+        let line = wantsWhy ? styleFn(hook, `because ${core2}`, end) : styleFn(hook, core2, end);
+        line = line.replace(/\(\s*\)/g,"").replace(/\s+/g," ").trim();
+        line = trimToLimit(line, limit);
+
+        const wc = wordCount(line);
+        outputs.push(limit && limit > 0 ? `${line} (${wc} words)` : line);
+      }
+
+      const uniq = [];
+      const seen = new Set();
+      for (const o of outputs){
+        const k = o.toLowerCase();
+        if (!seen.has(k)){ seen.add(k); uniq.push(o); }
+      }
+      return uniq.length ? uniq : outputs;
+    }
+
+    function genBatch(reset){
+      const question = safe($q.value);
+      if (!question){ toast("Paste the question first."); return; }
+      sessionStorage.setItem("ck_lastQuestion", question);
+
+      const limit = Number($limit.value || 0);
+      const tone = safe(document.getElementById("q_tone").value);
+      const style = safe(document.getElementById("q_style").value);
+      const angle = safe($angle.value);
+      const keywords = safe($kw.value).split(",").map(s => s.trim()).filter(Boolean);
+
+      const lines = generateAnswers({ question, limit, tone, style, angle, keywords, n: 10 });
+
+      if (reset){ $out.value = ""; best = ""; $bestLine.textContent="Best: (none)"; }
+      $out.value = ($out.value.trim() ? $out.value.trim() + "\n\n" : "") + lines.join("\n");
+      if (!best && lines[0]) setBest(lines[0]);
+      toast("Generated ✅");
+    }
+
+    document.getElementById("gen10").onclick = () => genBatch(true);
+    document.getElementById("genMore").onclick = () => genBatch(false);
+
+    document.getElementById("copyBest").onclick = async () => {
+      const pick = best || $out.value.split("\n").find(x => x.trim()) || "";
+      if (!pick){ toast("Nothing to copy."); return; }
+      try { await navigator.clipboard.writeText(pick); toast("Copied ✅"); }
+      catch { toast("Copy blocked by browser."); }
+    };
+
+    document.getElementById("clearOut").onclick = () => { $out.value=""; best=""; $bestLine.textContent="Best: (none)"; };
+  }
+
+  // ---------------- Profile ----------------
+  function renderProfile(){
+    const m = state.me;
+    $app.innerHTML = `
+      <div class="card">
+        <div class="title">Your Profile (Autofill data)</div>
+        <div class="small muted">Stored locally on your device.</div>
+        <div class="hr"></div>
+
+        <div class="row two">
+          <div><label>First name</label><input id="m_fn" value="${esc(m.firstName)}"></div>
+          <div><label>Last name</label><input id="m_ln" value="${esc(m.lastName)}"></div>
+        </div>
+
+        <div class="row two">
+          <div><label>Email</label><input id="m_em" inputmode="email" value="${esc(m.email)}"></div>
+          <div><label>Phone</label><input id="m_ph" inputmode="tel" value="${esc(m.phone)}"></div>
+        </div>
+
+        <div class="row two">
+          <div><label>Address line 1</label><input id="m_a1" value="${esc(m.address1)}"></div>
+          <div><label>Address line 2</label><input id="m_a2" value="${esc(m.address2)}"></div>
+        </div>
+
+        <div class="row three">
+          <div><label>Suburb / City</label><input id="m_sub" value="${esc(m.suburb)}"></div>
+          <div><label>State</label><input id="m_st" value="${esc(m.state)}" placeholder="NSW / VIC / QLD..."></div>
+          <div><label>Postcode</label><input id="m_pc" inputmode="numeric" value="${esc(m.postcode)}"></div>
+        </div>
+
+        <div class="row three">
+          <div><label>Country</label><input id="m_ct" value="${esc(m.country)}"></div>
+          <div><label>Date of birth (optional)</label><input id="m_dob" type="date" value="${esc(m.dob)}"></div>
+          <div>
+            <label>Gender (optional)</label>
+            <select id="m_gender">
+              <option value="">Prefer not to say</option>
+              <option ${m.gender==="Male"?"selected":""}>Male</option>
+              <option ${m.gender==="Female"?"selected":""}>Female</option>
+              <option ${m.gender==="Other"?"selected":""}>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div><label>Social handle (optional)</label><input id="m_socials" value="${esc(m.socials)}" placeholder="@yourhandle"></div>
+          <div><label>Personal angle (helps answers)</label><input id="m_angle" value="${esc(m.angle)}" placeholder="Sydney-based, love tech, family man, etc."></div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="m_save">Save</button>
+          <button class="blue" id="m_tools">Update bookmarklet</button>
+          <button class="danger" id="m_reset">Reset everything</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("m_save").onclick = () => {
+      state.me = {
+        firstName: safe(document.getElementById("m_fn").value),
+        lastName:  safe(document.getElementById("m_ln").value),
+        email:     safe(document.getElementById("m_em").value),
+        phone:     safe(document.getElementById("m_ph").value),
+        address1:  safe(document.getElementById("m_a1").value),
+        address2:  safe(document.getElementById("m_a2").value),
+        suburb:    safe(document.getElementById("m_sub").value),
+        state:     safe(document.getElementById("m_st").value),
+        postcode:  safe(document.getElementById("m_pc").value),
+        country:   safe(document.getElementById("m_ct").value),
+        dob:       safe(document.getElementById("m_dob").value),
+        socials:   safe(document.getElementById("m_socials").value),
+        angle:     safe(document.getElementById("m_angle").value),
+        gender:    safe(document.getElementById("m_gender").value)
+      };
+      save(); toast("Saved ✅");
+    };
+
+    document.getElementById("m_tools").onclick = () => setTab("tools");
+
+    document.getElementById("m_reset").onclick = () => {
+      if (!confirm("Reset profile + competitions?")) return;
+      state = structuredClone(defaultState);
+      save(); toast("Reset ✅");
+      render();
+    };
+  }
+
+  // ---------------- Tools (Autofill Bookmarklet) ----------------
+  function renderTools(){
+    const bm = buildBookmarkletV3(state.me);
+
+    $app.innerHTML = `
+      <div class="card">
+        <div class="title">Tools</div>
+        <div class="small muted">
+          Autofills common fields. Highlights required “terms/agree” checkboxes instead of ticking them.
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="title" style="font-size:15px">Autofill Bookmarklet</div>
+        <div class="small muted">
+          Create a browser bookmark named <b>Autofill Comp</b>, then paste the code below as the bookmark URL.
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Bookmarklet code</label>
+          <textarea class="mono" id="bm" readonly></textarea>
+          <div class="btns">
+            <button class="primary" id="copyBm">Copy bookmarklet</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="title" style="font-size:15px">Backup</div>
+        <div class="btns" style="margin-top:10px">
+          <button id="export">Export JSON</button>
+          <button id="import">Import JSON</button>
+        </div>
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+      </div>
+    `;
+
+    document.getElementById("bm").value = bm;
+
+    document.getElementById("copyBm").onclick = async () => {
+      try { await navigator.clipboard.writeText(bm); toast("Copied ✅"); }
+      catch { toast("Copy blocked by browser."); }
+    };
+
+    document.getElementById("export").onclick = () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `competition-kit-v3-${todayISO()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    const importBtn = document.getElementById("import");
+    const importFile = document.getElementById("importFile");
+    importBtn.onclick = () => importFile.click();
+    importFile.onchange = async () => {
+      const f = importFile.files?.[0];
+      if (!f) return;
+      try{
+        const obj = JSON.parse(await f.text());
+        state = Object.assign({}, defaultState, obj);
+        save(); toast("Imported ✅"); render();
+      } catch {
+        toast("Import failed.");
+      }
+    };
+  }
+
+  function buildBookmarkletV3(me){
+    const data = {
+      firstName: me.firstName || "",
+      lastName: me.lastName || "",
+      fullName: ((me.firstName||"")+" "+(me.lastName||"")).trim(),
+      email: me.email || "",
+      phone: (me.phone || "").replace(/\s+/g,""),
+      address1: me.address1 || "",
+      address2: me.address2 || "",
+      suburb: me.suburb || "",
+      state: (me.state || "").toUpperCase(),
+      postcode: me.postcode || "",
+      country: me.country || "",
+      dob: me.dob || "",
+      socials: me.socials || "",
+      gender: me.gender || ""
+    };
+
+    const js = `
+(()=>{try{
+const d=${JSON.stringify(data)};
+const norm=s=>(s||"").toLowerCase().replace(/\\s+/g," ").trim();
+const isVisible=(el)=>!!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);
+const textOf=(el)=>{
+  let lbl='';
+  if(el.id){
+    const l=document.querySelector('label[for="'+el.id+'"]');
+    if(l) lbl=l.innerText||'';
+  }
+  const aria=el.getAttribute('aria-label')||'';
+  const ac=el.getAttribute('autocomplete')||'';
+  return norm([el.name, el.id, el.placeholder, lbl, aria, ac, el.type].filter(Boolean).join(' '));
+};
+const setVal=(el,val)=>{
+  if(!el||val==null||val==='') return false;
+  try{
+    if(el.disabled) return false;
+    if(!isVisible(el)) return false;
+    el.focus();
+    if(el.tagName==='SELECT'){
+      const want=norm(val);
+      const opts=[...el.options];
+      const found=opts.find(o=>norm(o.value)===want) || opts.find(o=>norm(o.textContent).includes(want));
+      if(found){ el.value=found.value; }
+    } else if(el.type==='radio' || el.type==='checkbox'){
+      return false;
+    } else {
+      el.value=val;
+    }
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+    return true;
+  }catch{ return false; }
+};
+
+const els=[...document.querySelectorAll('input,textarea,select')]
+  .filter(e=>!e.disabled && e.type!=='hidden' && e.getAttribute('aria-hidden')!=='true');
+
+let filled=0;
+const fillBy=(keys,val)=>{
+  const ks=keys.map(norm);
+  for(const el of els){
+    const t=textOf(el);
+    if(ks.some(k=>t.includes(k))){
+      if(setVal(el,val)) filled++;
+    }
+  }
+};
+
+// Autocomplete wins first
+for(const el of els){
+  const ac=norm(el.getAttribute('autocomplete'));
+  if(ac==='given-name') { if(setVal(el,d.firstName)) filled++; }
+  if(ac==='family-name') { if(setVal(el,d.lastName)) filled++; }
+  if(ac==='name') { if(setVal(el,d.fullName)) filled++; }
+  if(ac==='email') { if(setVal(el,d.email)) filled++; }
+  if(ac==='tel') { if(setVal(el,d.phone)) filled++; }
+  if(ac==='address-line1') { if(setVal(el,d.address1)) filled++; }
+  if(ac==='address-line2') { if(setVal(el,d.address2)) filled++; }
+  if(ac==='address-level2') { if(setVal(el,d.suburb)) filled++; }
+  if(ac==='address-level1') { if(setVal(el,d.state)) filled++; }
+  if(ac==='postal-code') { if(setVal(el,d.postcode)) filled++; }
+  if(ac==='country') { if(setVal(el,d.country)) filled++; }
+  if(ac==='bday' || ac==='birthday') { if(setVal(el,d.dob)) filled++; }
+}
+
+// Pattern matching (includes confirm fields)
+fillBy(['first name','firstname','given name','fname','forename'], d.firstName);
+fillBy(['last name','lastname','surname','family name','lname'], d.lastName);
+fillBy(['full name','your name','name'], d.fullName);
+fillBy(['email','e-mail'], d.email);
+fillBy(['confirm email','email confirmation','re-enter email','repeat email'], d.email);
+fillBy(['phone','mobile','contact number','telephone','tel'], d.phone);
+fillBy(['address line 1','address1','street','street address','address'], d.address1);
+fillBy(['address line 2','address2','unit','apartment','suite'], d.address2);
+fillBy(['suburb','city','town','locality'], d.suburb);
+fillBy(['state','province','region'], d.state);
+fillBy(['postcode','postal','zip'], d.postcode);
+fillBy(['country'], d.country);
+fillBy(['date of birth','dob','birth date','birthday'], d.dob);
+fillBy(['instagram','ig','tiktok','social','handle'], d.socials);
+
+// Email/tel type backup
+for(const el of els){
+  if(el.type==='email') { if(setVal(el,d.email)) filled++; }
+  if(el.type==='tel') { if(setVal(el,d.phone)) filled++; }
+}
+
+// Radios (gender)
+if(d.gender){
+  const radios=els.filter(el=>el.type==='radio');
+  for(const el of radios){
+    const t=textOf(el);
+    if(t.includes('gender') || t.includes('sex')){
+      const id=el.id;
+      let lbl='';
+      if(id){
+        const l=document.querySelector('label[for="'+id+'"]');
+        if(l) lbl=norm(l.innerText||'');
+      }
+      const val=norm(el.value||'');
+      const want=norm(d.gender);
+      if(lbl.includes(want) || val===want){
+        el.checked=true;
+        el.dispatchEvent(new Event('change',{bubbles:true}));
+      }
+    }
+  }
+}
+
+// Checkboxes: highlight terms/agree/required; don’t tick marketing
+const checkboxHints=[];
+const checkboxes=els.filter(el=>el.type==='checkbox');
+for(const el of checkboxes){
+  const t=textOf(el);
+  const isTerms = t.includes('terms') || t.includes('conditions') || t.includes('agree') || t.includes('privacy') || t.includes('consent');
+  const isMarketing = t.includes('newsletter') || t.includes('marketing') || t.includes('offers') || t.includes('promotions');
+  const required = el.required || t.includes('required');
+
+  if((isTerms || required) && !isMarketing && !el.checked){
+    el.style.outline = '3px solid rgba(245,158,11,.9)';
+    el.style.outlineOffset = '2px';
+    checkboxHints.push('Tick highlighted terms/required checkboxes if you agree.');
+  }
+}
+
+// Required blanks highlight
+const blanks=[];
+for(const el of els){
+  if(!isVisible(el)) continue;
+  const t=textOf(el);
+  const required = el.required || t.includes('required');
+  if(required){
+    const empty = (el.tagName==='SELECT') ? !el.value : (!el.value || !el.value.trim());
+    if(empty && el.type!=='checkbox' && el.type!=='radio'){
+      el.style.outline='3px solid rgba(239,68,68,.9)';
+      el.style.outlineOffset='2px';
+      blanks.push(t.slice(0,60));
+    }
+  }
+}
+
+let msg="Autofill done: filled ~"+filled+" fields.";
+if(checkboxHints.length) msg+="\\n\\n⚠️ "+Array.from(new Set(checkboxHints)).join(" ");
+if(blanks.length) msg+="\\n\\n❗Required fields still blank (highlighted in red).";
+alert(msg);
+}catch(e){alert("Autofill failed: "+e.message);}})();
+`.trim();
+
+    return "javascript:" + encodeURIComponent(js).replace(/%20/g," ");
+  }
+
+  // ---------------- Tabs ----------------
+  function setTab(next){
+    tab = next;
+    document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+    render();
+  }
+  document.querySelectorAll(".tab").forEach(btn => btn.onclick = () => setTab(btn.dataset.tab));
+
+  function render(){
+    renderHeaderStats();
+    if (tab === "dashboard") renderDashboard();
+    if (tab === "ozbargain") renderOzBargain();
+    if (tab === "add") renderAdd();
+    if (tab === "answers") renderAnswers();
+    if (tab === "profile") renderProfile();
+    if (tab === "tools") renderTools();
+  }
+
+  // first paint
+  render();
+})();
+</script>
+</body>
+</html>
